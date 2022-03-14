@@ -1,12 +1,14 @@
 export interface Frame {
   firstPipe: PipePair;
   secondPipe: PipePair;
+  ground:Ground;
+  bird: Bird;
   gameOver: boolean;
   gameStarted: boolean;
   width: number;
   height: number;
   score: number;
-  groundHeight:Ground;
+
 }
 export interface PipePair {
   topPipe: Pipe;
@@ -25,6 +27,12 @@ export interface Ground {
   height: number;
 }
 
+export interface Bird {
+  top: number;
+  left: number;
+  size: number;
+}
+
 export class GameController {
   private frame: Frame;
 
@@ -39,7 +47,13 @@ export class GameController {
     public readonly maxTopForTopPipe = 350,
     public readonly generateNewPipePercent = 0.7,
     public readonly speed = 1,
-    public readonly groundHeight = 20
+    public readonly groundHeight = 20,
+
+    public readonly birdX = 40,
+    public readonly birdSize = 20,
+    public readonly gravity = 1.5,
+    public readonly jumpVelocity = 10,
+    public readonly slowVelocityBy = 0.3,
   ) {}
 
   private movePipe(pipe: PipePair, otherPipe: PipePair) {
@@ -62,8 +76,16 @@ export class GameController {
 
     return pipe;
   }
+  public start() {
+    this.newGame();
+    this.frame.gameStarted = true;
+    return this.frame;
+   }
+   public nextFrame() {
+    if (this.frame.gameOver || !this.frame.gameStarted) {
+      return this.frame;
+    }
 
-  public nextFrame() {
     this.frame.firstPipe = this.movePipe(
       this.frame.firstPipe,
       this.frame.secondPipe
@@ -73,9 +95,79 @@ export class GameController {
       this.frame.firstPipe
     );
 
+    if (
+      this.frame.bird.top >=
+      this.height - this.groundHeight - this.birdSize
+    ) {
+      this.frame.bird.top = this.height - this.groundHeight - this.birdSize;
+      this.frame.gameOver = true;
+      return this.frame;
+    }
+
+    if (this.hasCollidedWithPipe()) {
+      this.frame.gameOver = true;
+      return this.frame;
+    }
+
+    if (this.velocity > 0) {
+      this.velocity -= this.slowVelocityBy;
+    }
+
+    // Add score
+    if (this.frame.firstPipe.left + this.pipeWidth == this.birdX - this.speed) {
+      this.frame.score += 1;
+    }
+
+    // Add Score
+    if (
+      this.frame.secondPipe.left + this.pipeWidth ==
+      this.birdX - this.speed
+    ) {
+      this.frame.score += 1;
+    }
+
+    this.frame.bird.top += Math.pow(this.gravity, 2) - this.velocity;
+
     return this.frame;
   }
 
+  private checkPipe(left: number) {
+    return (
+      left <= this.birdX + this.birdSize && left + this.pipeWidth >= this.birdX
+    );
+}
+
+private hasCollidedWithPipe() {
+    if (
+      this.frame.firstPipe.show &&
+      this.checkPipe(this.frame.firstPipe.left)
+    ) {
+      return !(
+        this.frame.bird.top > this.frame.firstPipe.topPipe.height &&
+        this.frame.bird.top + this.birdSize <
+          this.frame.firstPipe.bottomPipe.top
+      );
+    }
+
+    if (
+      this.frame.secondPipe.show &&
+      this.checkPipe(this.frame.secondPipe.left)
+    ) {
+      return !(
+        this.frame.bird.top > this.frame.secondPipe.topPipe.height &&
+        this.frame.bird.top + this.birdSize <
+          this.frame.secondPipe.bottomPipe.top
+      );
+    }
+
+    return false;
+  }
+
+  public jump() {
+    if (this.velocity <= 0) {
+      this.velocity += this.jumpVelocity;
+    }
+  }
   public newGame() {
     let firstPipe = this.createPipe(true);
     let secondPipe = this.createPipe(false);
@@ -87,8 +179,13 @@ export class GameController {
       height: this.height,
       gameOver: false,
       gameStarted: false,
-      groundHeight: {
+      ground: {
         height: this.groundHeight
+      },
+      bird :{
+        left: this.birdX,
+        top: this.height / 2 - this.birdSize / 2,
+        size: this.birdSize,
       }
     };
 
