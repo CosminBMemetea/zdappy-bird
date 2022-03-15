@@ -75,6 +75,17 @@ import Pipe from "./Pipe.svelte";
     background-color: white;
     user-select: none;
   }
+  #character {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    font-size: 13px;
+    z-index: 0;
+    padding: 15px;
+    font-family: cursive;
+    background-color: white;
+    user-select: none;
+  }
 </style>
 {#if frame.gameOver || !frame.gameStarted}
 <section id="init-screen">
@@ -90,6 +101,13 @@ import Pipe from "./Pipe.svelte";
   <Bird bird="{frame.bird}" />
   <Pipe pipe="{frame.firstPipe}" />
   <Pipe pipe="{frame.secondPipe}" />
+  <section id="character">
+    <div>Name: <span>Zdappy no. 1</span></div>
+    <div>Level: <span>1</span></div>
+    <div>Experience: <span>2</span></div>
+    <div>Endurance: <span>10</span></div>
+    <div>Last Meal: <span>10</span></div>
+  </section>
   {#if frame.gameOver || !frame.gameStarted}
   <section id="init-screen">
     <button on:click="{startGame}">Start Game</button>
