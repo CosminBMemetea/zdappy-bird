@@ -1,5 +1,3 @@
-
-
 <script lang="ts">
 import Bird from "./Bird.svelte";
 import { GameController } from "./game";
@@ -21,12 +19,27 @@ import Pipe from "./Pipe.svelte";
 <svelte:window on:click="{jump}" />
 
 <style>
-    main {
-        position: relative;
-        border: solid black 1px;
+    container{
+        width: 100%;
+        height: calc(100vh);
+        display: flex;
         overflow: hidden;
-        background-color: lightblue;
+        position: relative;
     }
+    card{
+        flex:1;
+        padding: 100px;
+        padding-right: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        position: relative;
+        overflow: hidden;
+        border: solid white 3px;
+        overflow: hidden;
+        background-color: black;
+    }
+
     #ground {
         background-color: brown;
         width: 100%;
@@ -87,6 +100,9 @@ import Pipe from "./Pipe.svelte";
     user-select: none;
   }
 </style>
+<container class="container">
+
+<card class="card"></card>
 {#if frame.gameOver || !frame.gameStarted}
 <section id="init-screen">
   {#if frame.gameOver}
@@ -96,7 +112,8 @@ import Pipe from "./Pipe.svelte";
   <button on:click="{startGame}">Start Game</button>
 </section>
 {/if}
-<main style="width: {frame.width}px; height: {frame.height}px;" class="game">
+
+<card class="card">
   <section id="score">{frame.score}</section>
   <Bird bird="{frame.bird}" />
   <Pipe pipe="{frame.firstPipe}" />
@@ -114,4 +131,6 @@ import Pipe from "./Pipe.svelte";
   </section>
   {/if}
   <section style="height: {frame.ground.height}px;" id="ground"></section>
-</main>
+</card>
+<card class="card"></card>
+</container>

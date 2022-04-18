@@ -107,3 +107,34 @@ Then, from within your project folder:
 npm run build
 surge public my-project.surge.sh
 ```
+
+## Integrate web3 stack
+
+``` npm install web3 --save ```
+
+## Integrate web3 modal
+
+``` npm install --save web3modal ```
+
+## Install wallet link
+
+``` npm install --save walletlink ```
+
+## Install ethers 
+
+``` npm install --save ethers ```
+
+## Install walletconnect/web3provider
+
+  Add this line to package.json:  "@walletconnect/web3-provider": "^1.6.6",
+  Then execute the command below.
+
+``` npm install ```
+
+
+
+Bring the svelte project into your wallet connect one.
+
+ERC71 is the solidity standard used to create NFTs
+
+Connect Rinkeby test network to localhost(to where the site is located)
