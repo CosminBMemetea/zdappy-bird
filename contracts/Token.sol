@@ -106,4 +106,5 @@ function EnduranceUp(uint256 tokenId, uint256 value) public {
     ZdappyBird storage zdappyBird=tokenDetails[tokenId]; 
     zdappyBird.endurance += value;
 }
+//REDACTED
 }
