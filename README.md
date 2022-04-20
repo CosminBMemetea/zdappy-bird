@@ -108,29 +108,11 @@ npm run build
 surge public my-project.surge.sh
 ```
 
-## Integrate web3 stack
+## Integrate web3 stack TO DO
+```npm i svelte-web3```
 
-``` npm install web3 --save ```
-
-## Integrate web3 modal
-
-``` npm install --save web3modal ```
-
-## Install wallet link
-
-``` npm install --save walletlink ```
-
-## Install ethers 
-
-``` npm install --save ethers ```
-
-## Install walletconnect/web3provider
-
-  Add this line to package.json:  "@walletconnect/web3-provider": "^1.6.6",
-  Then execute the command below.
-
-``` npm install ```
-
+## Install carbon components
+yarn add -D carbon-components-svelte
 
 
 Bring the svelte project into your wallet connect one.
@@ -140,3 +122,5 @@ ERC71 is the solidity standard used to create NFTs
 Connect Rinkeby test network to localhost(to where the site is located)
 
 https://www.schemecolor.com/matrix-code-green.php
+
+https://svelte.dev/blog/svelte-3-rethinking-reactivity
