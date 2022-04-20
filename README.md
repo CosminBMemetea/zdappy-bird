@@ -138,3 +138,5 @@ Bring the svelte project into your wallet connect one.
 ERC71 is the solidity standard used to create NFTs
 
 Connect Rinkeby test network to localhost(to where the site is located)
+
+https://www.schemecolor.com/matrix-code-green.php
