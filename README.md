@@ -1,126 +1,84 @@
-*Psst — looking for a more complete solution? Check out [SvelteKit](https://kit.svelte.dev), the official framework for building web applications of all sizes, with a beautiful development experience and flexible filesystem-based routing.*
+<div align="center">
 
-*Looking for a shareable component template instead? You can [use SvelteKit for that as well](https://kit.svelte.dev/docs#packaging) or the older [sveltejs/component-template](https://github.com/sveltejs/component-template)*
+# 🐤 Zdappy Bird
 
----
+**A Flappy Bird–style browser game built with Svelte + TypeScript, with an ERC-721 smart contract for collectible "Zdappy" bird characters.**
 
-# svelte app
+[![Play the live demo](https://img.shields.io/badge/▶_Play_live_demo-00FF41?style=for-the-badge&labelColor=000000)](https://cosminbmemetea.github.io/zdappy-bird/)
 
-This is a project template for [Svelte](https://svelte.dev) apps. It lives at https://github.com/sveltejs/template.
+**▶ Live demo: https://cosminbmemetea.github.io/zdappy-bird/**
 
-To create a new project based on this template using [degit](https://github.com/Rich-Harris/degit):
+<a href="https://cosminbmemetea.github.io/zdappy-bird/"><img src="docs/demo.gif" alt="Zdappy Bird gameplay" width="720"></a>
 
-```bash
-npx degit sveltejs/template svelte-app
-cd svelte-app
-```
+</div>
 
-*Note that you will need to have [Node.js](https://nodejs.org) installed.*
+## How to play
 
+Open the [live demo](https://cosminbmemetea.github.io/zdappy-bird/), press **Start Game**, then **click or tap anywhere** to flap. Fly through the gaps between the green pipes; each pair you pass scores a point. Hitting a pipe or the ground ends the run.
 
-## Get started
+No wallet, account, or install is needed. The game runs entirely in your browser.
 
-Install the dependencies...
+## Features
 
-```bash
-cd svelte-app
-npm install
-```
+- Physics-driven game loop (gravity, jump velocity, collision detection) in plain TypeScript (`src/game.ts`)
+- Reactive rendering with Svelte components (`Bird`, `Pipe`, `Game`)
+- NFT-style character card (name, level, experience, endurance, last meal) and gear selectors built with Carbon Components
+- Works on desktop and mobile (side panels hide on narrow screens)
+- `contracts/Token.sol`: an ERC-721 (OpenZeppelin) contract that mints Zdappy Bird NFTs with on-chain stats (damage, magic, endurance, experience, level, last meal)
 
-...then start [Rollup](https://rollupjs.org):
+<p align="center"><img src="docs/screenshot-mobile.png" alt="Zdappy Bird on mobile" width="220"></p>
 
-```bash
-npm run dev
-```
+## Tech stack
 
-Navigate to [localhost:8080](http://localhost:8080). You should see your app running. Edit a component file in `src`, save it, and reload the page to see your changes.
+| Layer | Tools |
+| --- | --- |
+| UI | [Svelte 3](https://svelte.dev), [Carbon Components Svelte](https://carbon-components-svelte.onrender.com) |
+| Language | TypeScript |
+| Bundler | Rollup |
+| Smart contract | Solidity ^0.8, OpenZeppelin ERC-721 |
+| Hosting | GitHub Pages via GitHub Actions |
 
-By default, the server will only respond to requests from localhost. To allow connections from other computers, edit the `sirv` commands in package.json to include the option `--host 0.0.0.0`.
+## Run locally
 
-If you're using [Visual Studio Code](https://code.visualstudio.com/) we recommend installing the official extension [Svelte for VS Code](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode). If you are using other editors you may need to install a plugin in order to get syntax highlighting and intellisense.
-
-## Building and running in production mode
-
-To create an optimised version of the app:
-
-```bash
-npm run build
-```
-
-You can run the newly built app with `npm run start`. This uses [sirv](https://github.com/lukeed/sirv), which is included in your package.json's `dependencies` so that the app will work when you deploy to platforms like [Heroku](https://heroku.com).
-
-
-## Single-page app mode
-
-By default, sirv will only respond to requests that match files in `public`. This is to maximise compatibility with static fileservers, allowing you to deploy your app anywhere.
-
-If you're building a single-page app (SPA) with multiple routes, sirv needs to be able to respond to requests for *any* path. You can make it so by editing the `"start"` command in package.json:
-
-```js
-"start": "sirv public --single"
-```
-
-## Using TypeScript
-
-This template comes with a script to set up a TypeScript development environment, you can run it immediately after cloning the template with:
+Requires Node.js 18 or newer.
 
 ```bash
-node scripts/setupTypeScript.js
+git clone https://github.com/CosminBMemetea/zdappy-bird.git
+cd zdappy-bird
+npm ci
+npm run dev      # http://localhost:8080 with live reload
 ```
 
-Or remove the script via:
+Production build:
 
 ```bash
-rm scripts/setupTypeScript.js
+npm run build    # outputs public/build/
+npm start        # serves public/ at http://localhost:8080
 ```
 
-If you want to use `baseUrl` or `path` aliases within your `tsconfig`, you need to set up `@rollup/plugin-alias` to tell Rollup to resolve the aliases. For more info, see [this StackOverflow question](https://stackoverflow.com/questions/63427935/setup-tsconfig-path-in-svelte).
+### Smart contract
 
-## Deploying to the web
+The contract in `contracts/Token.sol` imports OpenZeppelin directly from GitHub, so the easiest way to compile and deploy it is [Remix](https://remix.ethereum.org): paste the file, compile with Solidity 0.8.x, and deploy to a **test network** (for example Sepolia). The browser game does not connect to a wallet or a contract yet.
 
-### With [Vercel](https://vercel.com)
+## Deployment
 
-Install `vercel` if you haven't already:
-
-```bash
-npm install -g vercel
-```
-
-Then, from within your project folder:
-
-```bash
-cd public
-vercel deploy --name my-project
-```
-
-### With [surge](https://surge.sh/)
-
-Install `surge` if you haven't already:
-
-```bash
-npm install -g surge
-```
-
-Then, from within your project folder:
+The demo is served by GitHub Pages from the `gh-pages` branch, which holds the built contents of `public/`. To update it:
 
 ```bash
 npm run build
-surge public my-project.surge.sh
+npx gh-pages -d public   # or copy public/ to the gh-pages branch by hand
 ```
 
-## Integrate web3 stack TO DO
-```npm i svelte-web3```
+## Privacy & security
 
-## Install carbon components
-yarn add -D carbon-components-svelte
+- **No personal data is collected or stored.** There are no accounts, forms, cookies, `localStorage`, analytics, or tracking scripts. Scores live only in memory and disappear when you close the tab.
+- **No wallet access.** The demo never asks for a wallet connection, signature, or transaction.
+- **No backend.** It is a static site; nothing you do is sent to a server.
+- The only third-party request is the IBM Plex font, loaded from IBM's CDN by the Carbon stylesheet.
+- Secrets are never committed (`.env*` is git-ignored). See [SECURITY.md](SECURITY.md) to report a vulnerability.
 
+## Roadmap
 
-Bring the svelte project into your wallet connect one.
-
-ERC71 is the solidity standard used to create NFTs
-
-Connect Rinkeby test network to localhost(to where the site is located)
-
-https://www.schemecolor.com/matrix-code-green.php
-
-https://svelte.dev/blog/svelte-3-rethinking-reactivity
+- Connect a wallet (read-only) to show the player's own Zdappy NFT stats
+- Persist high scores on-chain on a testnet
+- Pixel-art sprites for the bird and pipes

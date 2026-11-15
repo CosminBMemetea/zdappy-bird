@@ -4,7 +4,8 @@ import { GameController } from "./game";
 import Pipe from "./Pipe.svelte";
 import { Dropdown } from "carbon-components-svelte";
 import "carbon-components-svelte/css/g100.css";
-  const game = new GameController();
+  // Match the physics height to the visible play area so the ground lines up on any screen.
+  const game = new GameController(Math.max(window.innerHeight - 6, 560));
   let frame = game.newGame();
   setInterval(() => {
      frame = game.nextFrame();
@@ -16,7 +17,7 @@ import "carbon-components-svelte/css/g100.css";
       game.start();
   } 
   function handleSelect(event:CustomEvent) {
-    console.log(event.detail.selectedItem.text);
+    // Selection is kept in memory only; nothing is stored or sent anywhere.
 	}
 
 </script>
@@ -93,6 +94,11 @@ import "carbon-components-svelte/css/g100.css";
     background-color: black;
     user-select: none;
   }
+  @media (max-width: 900px) {
+    card.side {
+      display: none;
+    }
+  }
   #character {
     position: absolute;
     left: 10px;
@@ -108,7 +114,7 @@ import "carbon-components-svelte/css/g100.css";
 </style>
 <container class="container">
 
-<card class="card">
+<card class="card side">
 
 
 <Dropdown class="dropdown"
@@ -151,7 +157,7 @@ import "carbon-components-svelte/css/g100.css";
   {/if}
   <section style="height: {frame.ground.height}px;" id="ground"></section>
 </card>
-<card class="card">
+<card class="card side">
 
   <Dropdown class="drp" 
   on:select={ (event) => handleSelect(event)}
