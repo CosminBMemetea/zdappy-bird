@@ -2,3 +2,8 @@
 /public/build/
 
 .DS_Store
+
+# local env files (never commit secrets, keys or mnemonics)
+.env
+.env*
+*.pem
