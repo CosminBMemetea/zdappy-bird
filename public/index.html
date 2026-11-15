@@ -5,6 +5,9 @@
 	<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 	<meta name="theme-color" content="#030705">
 	<meta name="referrer" content="no-referrer">
+	<!-- Content Security Policy: only this site's own scripts, styles, images, and fonts; no outbound connections from the page.
+	     Wallet RPC traffic goes through the wallet extension, not the page. -->
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'self'">
 
 	<title>Zdappy Bird: neon Flappy Bird in Svelte</title>
 	<meta name="description" content="Play Zdappy Bird in your browser: a neon Flappy Bird-style game built with Svelte + TypeScript, with an ERC-721 NFT character contract. No sign-up, no tracking.">

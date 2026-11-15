@@ -1,6 +1,14 @@
 {
-  // "extends": "@tsconfig/svelte/tsconfig.json",
-
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "lib": ["es2020", "dom"],
+    "types": [],
+    "skipLibCheck": true,
+    "importsNotUsedAsValues": "remove",
+    "isolatedModules": true
+  },
   "include": ["src/**/*"],
-  "exclude": ["node_modules/*", "__sapper__/*", "public/*"]
+  "exclude": ["node_modules/*", "public/*", "tests/*"]
 }

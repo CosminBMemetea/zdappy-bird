@@ -3,30 +3,44 @@
   import Bird from "./Bird.svelte";
   import Pipe from "./Pipe.svelte";
   import { GameController } from "./game";
+  import Wallet from "./Wallet.svelte";
 
   const TICK_MS = 1000 / 90; // physics runs at a fixed 90 ticks per second
 
-  // Size the board to the screen: physics height and width match what's drawn.
-  const boardWidth = Math.round(Math.min(420, window.innerWidth - 32));
-  const boardHeight = Math.round(Math.max(480, Math.min(720, window.innerHeight - 170)));
+  // Size the board to the visible screen; physics width/height match what's drawn.
+  // visualViewport tracks the real visible area on phones (URL bar, keyboard).
   const groundHeight = 28;
   const pipeGap = 160;
-
-  const game = new GameController(
-    boardHeight,
-    boardWidth,
-    56, // pipe width
-    pipeGap,
-    60, // min top pipe height
-    boardHeight - groundHeight - pipeGap - 60, // max top pipe height
-    0.6, // spawn the next pipe after 60% of the board
-    1.5, // speed
-    groundHeight,
-    Math.round(boardWidth * 0.22), // bird x
-    26, // bird size
-    1.5, // gravity
-    7.5 // jump velocity
-  );
+  function measure() {
+    const vw = window.visualViewport?.width ?? window.innerWidth;
+    const vh = window.visualViewport?.height ?? window.innerHeight;
+    const narrow = vw <= 980;
+    const short = vh <= 500; // phone in landscape: compact header (see @media max-height)
+    const reserved = short ? 72 : narrow ? 96 : 170; // header + padding above/below the board
+    return {
+      width: Math.round(Math.max(260, Math.min(420, vw - (narrow ? 24 : 32)))),
+      height: Math.round(Math.max(short ? 280 : 320, Math.min(720, vh - reserved))),
+    };
+  }
+  function makeGame(width: number, height: number) {
+    return new GameController(
+      height,
+      width,
+      56, // pipe width
+      pipeGap,
+      60, // min top pipe height
+      height - groundHeight - pipeGap - 60, // max top pipe height
+      0.6, // spawn the next pipe after 60% of the board
+      1.5, // speed
+      groundHeight,
+      Math.round(width * 0.22), // bird x
+      26, // bird size
+      1.5, // gravity
+      7.5 // jump velocity
+    );
+  }
+  let { width: boardWidth, height: boardHeight } = measure();
+  let game = makeGame(boardWidth, boardHeight);
 
   let frame = game.newGame();
   let best = 0; // kept in memory only, never stored or sent
@@ -56,10 +70,61 @@
     }
     raf = requestAnimationFrame(loop);
   }
-  onMount(() => (raf = requestAnimationFrame(loop)));
-  onDestroy(() => cancelAnimationFrame(raf));
+  // Re-fit the board after rotation or a viewport change. Never mid-run: the new size
+  // waits until the current run is over so the physics don't jump.
+  let resizePending = false;
+  let resizeTimer = 0;
+  function refit() {
+    if (running) {
+      resizePending = true;
+      return;
+    }
+    resizePending = false;
+    const next = measure();
+    if (next.width === boardWidth && next.height === boardHeight) return;
+    boardWidth = next.width;
+    boardHeight = next.height;
+    game = makeGame(boardWidth, boardHeight);
+    frame = game.newGame();
+    prevTop = frame.bird.top;
+  }
+  function scheduleRefit() {
+    clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(refit, 150);
+  }
+
+  let board: HTMLElement;
+  // Non-passive listeners only on the board, only to stop browser gestures there.
+  const stopGesture = (e: Event) => e.preventDefault();
+  const onBoardTouchStart = (e: TouchEvent) => {
+    // Let taps on overlay buttons through so they still click; block zoom/scroll/callouts elsewhere.
+    if (e.target instanceof Element && e.target.closest("button")) return;
+    e.preventDefault();
+  };
+
+  onMount(() => {
+    raf = requestAnimationFrame(loop);
+    board.addEventListener("touchstart", onBoardTouchStart, { passive: false });
+    board.addEventListener("touchmove", stopGesture, { passive: false });
+    board.addEventListener("gesturestart", stopGesture, { passive: false }); // iOS Safari pinch
+    board.addEventListener("contextmenu", stopGesture); // long-press menu
+    window.addEventListener("resize", scheduleRefit);
+    window.addEventListener("orientationchange", scheduleRefit);
+    window.visualViewport?.addEventListener("resize", scheduleRefit);
+  });
+  onDestroy(() => {
+    cancelAnimationFrame(raf);
+    clearTimeout(resizeTimer);
+    window.removeEventListener("resize", scheduleRefit);
+    window.removeEventListener("orientationchange", scheduleRefit);
+    window.visualViewport?.removeEventListener("resize", scheduleRefit);
+    document.documentElement.classList.remove("playing");
+  });
 
   $: running = frame.gameStarted && !frame.gameOver;
+  // While a run is live, lock page scrolling so a stray swipe can't move the board.
+  $: document.documentElement.classList.toggle("playing", running);
+  $: if (!running && resizePending) refit();
 
   function start() {
     overAt = 0;
@@ -73,11 +138,15 @@
   }
   const restartLocked = () => frame.gameOver && performance.now() - overAt < 600;
   function onBoardPointer(e: PointerEvent) {
-    if ((e.target as HTMLElement).closest("button")) return;
+    if (e.target instanceof Element && e.target.closest("button")) return;
+    if (e.pointerType !== "mouse" || e.button === 0) e.preventDefault(); // no focus/selection/emulated mouse
+    else return;
     if (running) flap();
     else if (!restartLocked()) start();
   }
   function onKey(e: KeyboardEvent) {
+    const el = e.target;
+    if (el instanceof Element && el.closest("button, a, input, select, textarea, pre")) return;
     if (e.code === "Space" || e.code === "ArrowUp" || e.code === "KeyW") {
       e.preventDefault();
       if (running) flap();
@@ -141,8 +210,10 @@
       class="board"
       class:running
       style="width: {boardWidth}px; height: {boardHeight}px;"
+      bind:this={board}
       on:pointerdown={onBoardPointer}
       aria-label="Game board"
+      data-testid="board"
     >
       <div class="sky" aria-hidden="true"></div>
       {#if frame.gameStarted}<div class="score" aria-live="polite">{frame.score}</div>{/if}
@@ -176,6 +247,7 @@
       {/if}
     </section>
 
+    <div class="side">
     <aside class="panel" aria-label="Loadout">
       <h2>Loadout</h2>
       <label class="field">
@@ -200,6 +272,8 @@
         </ol>
       </div>
     </aside>
+    <Wallet score={best} />
+    </div>
   </main>
 
   <footer class="foot">
@@ -210,10 +284,12 @@
 <style>
   .page {
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    padding: 16px;
+    padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+      max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
   }
   .top {
     display: flex;
@@ -288,14 +364,20 @@
     width: 100%;
     margin: 0 auto;
   }
-  .panel {
+  .side {
+    display: grid;
+    gap: 16px;
+  }
+  .panel,
+  .side :global(.panel) {
     background: var(--panel);
     border: 1px solid var(--line);
     border-radius: 20px;
     padding: 20px;
     backdrop-filter: blur(8px);
   }
-  .panel h2 {
+  .panel h2,
+  .side :global(.panel h2) {
     margin: 0 0 16px;
     font-size: 0.8rem;
     letter-spacing: 0.14em;
@@ -406,10 +488,22 @@
     border: 1px solid rgba(0, 255, 65, 0.35);
     box-shadow: 0 0 0 6px rgba(0, 255, 65, 0.05), 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 60px rgba(0, 255, 65, 0.12);
     cursor: pointer;
-    touch-action: manipulation;
+    flex: none;
+    /* Mobile: the board owns every touch. No pinch/double-tap zoom, no scrolling,
+       no pull-to-refresh, no long-press callout or text selection, no tap flash. */
+    touch-action: none;
+    overscroll-behavior: contain;
     user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
   }
+  .board :global(*) {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
   .sky {
     position: absolute;
     inset: 0;
@@ -588,17 +682,35 @@
     .board {
       order: -1;
     }
-    .panel {
+    .panel,
+    .side {
       width: 100%;
       max-width: 460px;
     }
   }
   @media (max-width: 520px) {
     .page {
-      padding: 12px;
+      gap: 12px;
+      padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+        max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
     }
     .brand p {
       display: none;
+    }
+  }
+  @media (max-height: 500px) and (orientation: landscape) {
+    .page {
+      gap: 8px;
+      padding-top: max(8px, env(safe-area-inset-top));
+      padding-bottom: max(8px, env(safe-area-inset-bottom));
+    }
+    .brand p {
+      display: none;
+    }
+    .logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
     }
   }
   @media (prefers-reduced-motion: reduce) {
