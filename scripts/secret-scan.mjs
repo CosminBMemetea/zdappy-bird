@@ -3,7 +3,6 @@
 // 1) gitleaks over the git history and the working tree (incl. public/build).
 // 2) Extra patterns gitleaks doesn't cover well for web3 projects.
 // Exits non-zero on any finding. Findings are printed redacted.
-import { createHash } from "node:crypto";
 import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
@@ -70,30 +69,27 @@ for (const file of files) {
 if (!failed) console.log(`✓ pattern scan: ${files.length} files clean`);
 
 // --- 3. 64-hex values anywhere in git history --------------------------------
-// gitleaks doesn't flag bare 32-byte hex (it could be a tx hash or a private key).
-// A value a maintainer has reviewed and confirmed is NOT a secret can be allowlisted
-// by its SHA-256 fingerprint (never the value itself) in .secret-scan-allowlist.
-const allow = new Set(
-  existsSync(".secret-scan-allowlist")
-    ? readFileSync(".secret-scan-allowlist", "utf8").split("\n").map((l) => l.trim()).filter((l) => /^[0-9a-f]{64}$/.test(l))
-    : []
-);
+// gitleaks doesn't flag bare 32-byte hex (it could be a tx hash or a private key),
+// so any such value added in any commit fails the scan. A public value (e.g. a
+// published test vector) must carry a "secret-scan: public-value" comment on the
+// line before it, the same as in the working tree.
 const history = execFileSync("git", ["log", "-p", "--all", "--format=commit %H", "--", ".", ":!package-lock.json", ":!*.png", ":!*.gif"], {
   encoding: "utf8",
   maxBuffer: 256 * 1024 * 1024,
 });
 let commit = "";
-const seen = new Set();
+let prev = "";
+let historyHits = 0;
 for (const line of history.split("\n")) {
   if (line.startsWith("commit ")) commit = line.slice(7, 14);
-  if (!line.startsWith("+") || line.startsWith("+++")) continue;
-  for (const m of line.matchAll(/(?<![0-9a-fA-F])(?:0x)?([0-9a-fA-F]{64})(?![0-9a-fA-F])/g)) {
-    const fp = createHash("sha256").update(m[1].toLowerCase()).digest("hex");
-    if (allow.has(fp) || seen.has(fp)) continue;
-    seen.add(fp);
-    fail(`64-hex value in git history, commit ${commit} (${m[1].slice(0, 6)}…redacted, fingerprint ${fp.slice(0, 12)}). ` +
-      "Confirm it isn't a private key, then allowlist its fingerprint.");
+  const added = line.startsWith("+") && !line.startsWith("+++");
+  if (added && !prev.includes("secret-scan: public-value")) {
+    for (const m of line.matchAll(/(?<![0-9a-fA-F])(?:0x)?([0-9a-fA-F]{64})(?![0-9a-fA-F])/g)) {
+      historyHits++;
+      fail(`64-hex value in git history, commit ${commit} (${m[1].slice(0, 6)}…redacted)`);
+    }
   }
+  prev = line;
 }
-if (seen.size === 0) console.log("✓ git history: no unreviewed 64-hex values");
+if (historyHits === 0) console.log("✓ git history: no 64-hex values");
 process.exit(failed ? 1 : 0);

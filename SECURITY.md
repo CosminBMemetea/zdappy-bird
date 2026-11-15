@@ -28,9 +28,9 @@ It builds the site, then runs:
 | --- | --- | --- |
 | Unit tests | `npm run test:unit` | Exact signed-message format, EIP-191 hashing, signature recovery, tampered and malformed signatures, wallet request parameters |
 | Browser tests | `npm run test:e2e` | No wallet prompt before **Connect**; connect/disconnect, rejection, and wrong-network handling with a mocked wallet; the wallet signs exactly the text shown; no cookies or web storage; same-origin requests only; CSP enforced; stable mobile touch handling |
-| Secret scan | `npm run scan:secrets` | gitleaks over git history, `src/`, and the built bundle; 64-hex keys, seed phrases, RPC/API keys in tracked files; unreviewed 64-hex values anywhere in history |
+| Secret scan | `npm run scan:secrets` | gitleaks over git history, `src/`, and the built bundle; 64-hex keys, seed phrases, RPC/API keys in tracked files; 64-hex values added anywhere in git history |
 | Dependency audit | `npm run audit:prod` | `npm audit --omit=dev --audit-level=high` |
 
-A 64-hex value in git history might be a public transaction hash or a private key, so the scan fails until a maintainer reviews it. If it is **not** a secret, add its SHA-256 fingerprint (never the value) to `.secret-scan-allowlist`. If it **is** a key, treat it as compromised: move any funds, stop using it, and rewrite the history.
+A bare 64-hex value could be a private key, so the scan fails on any such value in the tree or in any commit. Published test vectors must carry a `secret-scan: public-value` comment on the line above. If the scan ever finds a real key, treat it as compromised: move any funds, stop using it, and rewrite the history.
 
 A CI workflow that runs these on every push and pull request is kept as a draft, because the deploy token can't push workflow files.

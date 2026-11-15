@@ -143,7 +143,7 @@ npm run test:security   # build + all of the above + secret scan + production de
 - Nothing is written to cookies, `localStorage`, `sessionStorage`, IndexedDB, or Cache Storage, and every request goes to the page's own origin.
 - The CSP meta tag is present and enforced: inline scripts, outside `fetch`es, and outside images are blocked.
 - Mobile: taps flap; double-tap, pinch, and swipes on the board don't zoom or scroll; page scroll stays at 0 during a run; no long-press callout or selection; the board refits on rotation.
-- `npm run scan:secrets`: gitleaks over the git history, `src/`, and the built bundle, plus checks for 64-hex keys, seed phrases, and RPC/API keys.
+- `npm run scan:secrets`: gitleaks over the git history, `src/`, and the built bundle, plus checks for 64-hex keys (in files and in every commit), seed phrases, and RPC/API keys.
 - `npm run audit:prod`: `npm audit --omit=dev --audit-level=high`.
 
 Playwright uses `/usr/bin/google-chrome` or `$CHROME_PATH` if present, or its own Chromium (`npx playwright install chromium`). The secret scan needs [gitleaks](https://github.com/gitleaks/gitleaks) on `PATH` (or `GITLEAKS_BIN`). Test keys are generated fresh on every run; none are committed.
