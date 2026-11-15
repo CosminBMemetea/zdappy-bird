@@ -14,25 +14,27 @@
 
 ## How to play
 
-Open the [live demo](https://cosminbmemetea.github.io/zdappy-bird/), press **Start Game**, then **click or tap anywhere** to flap. Fly through the gaps between the green pipes; each pair you pass scores a point. Hitting a pipe or the ground ends the run.
+Open the [live demo](https://cosminbmemetea.github.io/zdappy-bird/), press **Start game**, then **click, tap, or press Space / ↑** to flap. Fly through the gaps between the green pipes; each pair you pass scores a point. Hitting a pipe or the ground ends the run.
 
 No wallet, account, or install is needed. The game runs entirely in your browser.
 
 ## Features
 
 - Physics-driven game loop (gravity, jump velocity, collision detection) in plain TypeScript (`src/game.ts`)
-- Reactive rendering with Svelte components (`Bird`, `Pipe`, `Game`)
-- NFT-style character card (name, level, experience, endurance, last meal) and gear selectors built with Carbon Components
-- Works on desktop and mobile (side panels hide on narrow screens)
+- Reactive rendering with Svelte components (`Bird`, `Pipe`, `Game`) and a fixed-timestep `requestAnimationFrame` loop
+- Neon look: glowing pipes, an animated bird that tilts and flaps, scrolling ground, start and game-over screens with a best-score badge
+- NFT-style character card (level, experience, endurance, last meal) and a loadout panel
+- Responsive: the board sizes itself to the screen; panels stack under it on phones. Keyboard, mouse, and touch controls; respects `prefers-reduced-motion`
+- Tiny footprint: about 20 KB of JS and 10 KB of CSS, system fonts, no UI framework
 - `contracts/Token.sol`: an ERC-721 (OpenZeppelin) contract that mints Zdappy Bird NFTs with on-chain stats (damage, magic, endurance, experience, level, last meal)
 
-<p align="center"><img src="docs/screenshot-mobile.png" alt="Zdappy Bird on mobile" width="220"></p>
+<p align="center"><img src="docs/screenshot-mobile.png" alt="Zdappy Bird game-over screen on mobile" width="260"></p>
 
 ## Tech stack
 
 | Layer | Tools |
 | --- | --- |
-| UI | [Svelte 3](https://svelte.dev), [Carbon Components Svelte](https://carbon-components-svelte.onrender.com) |
+| UI | [Svelte 3](https://svelte.dev), hand-written CSS |
 | Language | TypeScript |
 | Bundler | Rollup |
 | Smart contract | Solidity ^0.8, OpenZeppelin ERC-721 |
@@ -74,7 +76,7 @@ npx gh-pages -d public   # or copy public/ to the gh-pages branch by hand
 - **No personal data is collected or stored.** There are no accounts, forms, cookies, `localStorage`, analytics, or tracking scripts. Scores live only in memory and disappear when you close the tab.
 - **No wallet access.** The demo never asks for a wallet connection, signature, or transaction.
 - **No backend.** It is a static site; nothing you do is sent to a server.
-- The only third-party request is the IBM Plex font, loaded from IBM's CDN by the Carbon stylesheet.
+- **No third-party requests.** Fonts are system fonts; every file is served from GitHub Pages. The best score is kept in memory only.
 - Secrets are never committed (`.env*` is git-ignored). See [SECURITY.md](SECURITY.md) to report a vulnerability.
 
 ## Roadmap
