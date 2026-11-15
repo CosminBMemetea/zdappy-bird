@@ -108,6 +108,12 @@ export class GameController {
       return this.frame;
     }
 
+    // Ceiling: the bird can't fly off the top of the board
+    if (this.frame.bird.top < 0) {
+      this.frame.bird.top = 0;
+      this.velocity = 0;
+    }
+
     if (this.hasCollidedWithPipe()) {
       this.frame.gameOver = true;
       return this.frame;
@@ -118,21 +124,24 @@ export class GameController {
     }
 
     // Add score
-    if (this.frame.firstPipe.left + this.pipeWidth == this.birdX - this.speed) {
+    if (this.passedBird(this.frame.firstPipe)) {
       this.frame.score += 1;
     }
 
     // Add Score
-    if (
-      this.frame.secondPipe.left + this.pipeWidth ==
-      this.birdX - this.speed
-    ) {
+    if (this.passedBird(this.frame.secondPipe)) {
       this.frame.score += 1;
     }
 
     this.frame.bird.top += Math.pow(this.gravity, 2) - this.velocity;
 
     return this.frame;
+  }
+
+  // True on the single tick where the pipe's right edge moves past the bird
+  private passedBird(pipe: PipePair) {
+    const right = pipe.left + this.pipeWidth;
+    return pipe.show && right < this.birdX && right + this.speed >= this.birdX;
   }
 
   private checkPipe(left: number) {
@@ -168,9 +177,8 @@ private hasCollidedWithPipe() {
   }
 
   public jump() {
-    if (this.velocity <= 0) {
-      this.velocity += this.jumpVelocity;
-    }
+    // Each flap resets upward velocity, so rapid taps feel responsive
+    this.velocity = this.jumpVelocity;
   }
   public newGame() {
     let firstPipe = this.createPipe(true);
@@ -213,7 +221,7 @@ private hasCollidedWithPipe() {
         top: height + this.pipeGap,
         height: this.height,
       },
-      left: this.width - this.pipeWidth,
+      left: this.width,
       width: this.pipeWidth,
       show,
     };
