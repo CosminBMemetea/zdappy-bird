@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+	<meta name="theme-color" content="#030705">
+	<meta name="referrer" content="no-referrer">
+	<!-- Content Security Policy: only this site's own scripts, styles, images, and fonts; no outbound connections from the page.
+	     Wallet RPC traffic goes through the wallet extension, not the page. -->
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'self'">
+
+	<title>Zdappy Bird: neon Flappy Bird in Svelte</title>
+	<meta name="description" content="Play Zdappy Bird in your browser: a neon Flappy Bird-style game built with Svelte + TypeScript, with an ERC-721 NFT character contract. No sign-up, no tracking.">
+
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="Zdappy Bird">
+	<meta property="og:description" content="A neon Flappy Bird-style browser game built with Svelte + TypeScript. Play it instantly, no sign-up.">
+	<meta property="og:url" content="https://cosminbmemetea.github.io/zdappy-bird/">
+	<meta property="og:image" content="https://cosminbmemetea.github.io/zdappy-bird/og.png">
+	<meta name="twitter:card" content="summary_large_image">
+
+	<link rel="icon" type="image/svg+xml" href="favicon.svg">
+	<link rel="icon" type="image/png" href="favicon.png">
+	<link rel="stylesheet" href="global.css">
+	<link rel="stylesheet" href="build/bundle.css">
+
+	<script defer src="build/bundle.js"></script>
+</head>
+
+<body>
+	<noscript>Zdappy Bird needs JavaScript to run.</noscript>
+</body>
+</html>
