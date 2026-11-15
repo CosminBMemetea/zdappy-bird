@@ -19,6 +19,22 @@ html,
 body {
   margin: 0;
   min-height: 100%;
+  /* No pull-to-refresh or rubber-band bounce; the page still scrolls normally. */
+  overscroll-behavior: none;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* While a run is live: freeze page scroll so a swipe can't drag the board away.
+   Zoom outside the board stays available whenever no run is live. */
+html.playing,
+html.playing body {
+  overflow: hidden;
+  touch-action: none;
 }
 
 body {

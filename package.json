@@ -6,25 +6,34 @@
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "start": "sirv public --no-clear",
-    "check": "svelte-check --tsconfig ./tsconfig.json"
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "scan:secrets": "node scripts/secret-scan.mjs",
+    "audit:prod": "npm audit --omit=dev --audit-level=high",
+    "test:security": "npm run build && npm run test:unit && npm run test:e2e && npm run scan:secrets && npm run audit:prod"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-node-resolve": "^11.0.0",
+    "@rollup/plugin-terser": "^1.0.2",
     "@rollup/plugin-typescript": "^11.1.6",
     "@tsconfig/svelte": "^2.0.0",
     "rollup": "^2.3.4",
     "rollup-plugin-css-only": "^3.1.0",
-    "rollup-plugin-livereload": "^2.0.0",
     "rollup-plugin-svelte": "^7.0.0",
-    "rollup-plugin-terser": "^7.0.0",
     "svelte": "^3.0.0",
     "svelte-check": "^2.0.0",
     "svelte-preprocess": "^4.0.0",
     "tslib": "^2.0.0",
-    "typescript": "^4.0.0"
+    "typescript": "^4.0.0",
+    "vitest": "^4.1.12"
   },
   "dependencies": {
+    "@noble/curves": "^1.9.7",
+    "@noble/hashes": "^1.8.0",
     "sirv-cli": "^2.0.2"
   }
 }

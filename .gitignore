@@ -7,3 +7,5 @@
 .env
 .env*
 *.pem
+test-results/
+playwright-report/

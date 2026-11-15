@@ -1,8 +1,7 @@
 import svelte from 'rollup-plugin-svelte';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
-import livereload from 'rollup-plugin-livereload';
-import { terser } from 'rollup-plugin-terser';
+import terser from '@rollup/plugin-terser';
 import sveltePreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
 import css from 'rollup-plugin-css-only';
@@ -69,9 +68,8 @@ export default {
 		// the bundle has been generated
 		!production && serve(),
 
-		// Watch the `public` directory and refresh the
-		// browser on changes when not in production
-		!production && livereload('public'),
+		// No livereload: its injected script would be blocked by the page's CSP.
+		// In dev, refresh the browser after each rebuild.
 
 		// If we're building for production (npm run build
 		// instead of npm run dev), minify
